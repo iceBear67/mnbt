@@ -1,6 +1,6 @@
 {
     "import": [
-        "icybear/mnbt/nbt",
+        "iceBear67/mnbt/nbt",
     "moonbitlang/x/fs",
     "moonbitlang/x/encoding",
     "gmlewis/zlib",

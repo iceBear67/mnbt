@@ -1,4 +1,4 @@
-# icybear/mnbt
+# iceBear67/mnbt
 
 A simple parser for binary variant of [Named-Binary-Tag (NBT) Data Format](https://minecraft.wiki/w/NBT_format), which is commonly used in Minecraft.
 
