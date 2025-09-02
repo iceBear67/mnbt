@@ -6,5 +6,8 @@
     "gmlewis/zlib",
     "gmlewis/io",
     "gmlewis/flate"
+    ],
+    "test-import": [
+      "gmlewis/base64"
     ]
 }

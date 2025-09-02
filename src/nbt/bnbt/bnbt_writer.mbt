@@ -12,12 +12,32 @@ pub fn write_uncompressed(
   littleEndian? : Bool = false,
   tag : @nbt.NBTTag,
   buf : @buffer.T,
-) -> Unit {
+) -> Unit raise {
   write(tag, WriterByteBuf::{ littleEndian, buffer: buf })
 }
 
 ///|
-fn write_compound(tag : @nbt.NBTTag, out : WriterByteBuf) -> Unit {
+pub fn write_zlib(
+  littleEndian? : Bool = false,
+  tag : @nbt.NBTTag,
+) -> @io.Buffer raise {
+  let dict = @io.Slice::new([])
+  let pipew = @io.Buffer::new()
+  
+  let nbtBuf = @buffer.new()
+  write_uncompressed(littleEndian = littleEndian, tag, nbtBuf)
+  let buf = @io.Buffer::from_bytes(nbtBuf.contents())
+  let zlibw = @zlib.Writer::new_dict(pipew, dict)
+  let (_, err) = zlibw.write(buf.to_slice())
+  if err != None {
+    raise fail("Failed to compress ")
+  }
+  guard zlibw.close() is None
+  buf
+}
+
+///|
+pub fn write_compound(tag : @nbt.NBTTag, out : WriterByteBuf) -> Unit raise {
   match tag {
     TagCompound(name, map) => {
       for _, entry in map.iter() {
@@ -43,7 +63,7 @@ fn write(
   with_type? : Bool = true,
   tag : @nbt.NBTTag,
   out : WriterByteBuf,
-) -> Unit {
+) -> Unit raise {
   if with_type {
     out.write_byte(tag.to_type_id())
   }
@@ -84,14 +104,4 @@ fn write(
       }
     }
   }
-}
-
-///|
-fn WriterByteBuf::write_string(self : WriterByteBuf, str : String) -> Unit {
-  self.write_uint16(str.length().to_uint16()) // todo overflow check
-  if str.length() == 0 {
-    return
-  }
-  let utf = @encoding.encode(UTF8, str)
-  self.write_bytes(utf[:utf.length()]) // strip the null character
 }
