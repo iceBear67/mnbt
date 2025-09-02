@@ -1,0 +1,10 @@
+{
+    "import": [
+        "icybear/mnbt/nbt",
+    "moonbitlang/x/fs",
+    "moonbitlang/x/encoding",
+    "gmlewis/zlib",
+    "gmlewis/io",
+    "gmlewis/flate"
+    ]
+}

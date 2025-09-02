@@ -1,0 +1,16 @@
+{
+  "name": "icybear/mnbt",
+  "version": "0.1.0",
+  "deps": {
+    "moonbitlang/x": "0.4.32",
+    "gmlewis/zlib": "0.20.20",
+    "gmlewis/flate": "0.35.19"
+  },
+  "readme": "README.md",
+  "repository": "",
+  "license": "Apache-2.0",
+  "keywords": [],
+  "description": "",
+  "source": "src",
+  "preferred-target": "native"
+}
