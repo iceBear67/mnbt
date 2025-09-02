@@ -7,10 +7,10 @@
     "gmlewis/flate": "0.35.19"
   },
   "readme": "README.md",
-  "repository": "",
+  "repository": "https://github.com/iceBear67/mnbt",
   "license": "Apache-2.0",
   "keywords": [],
-  "description": "",
+  "description": "A NBT Parser for MoonBit language",
   "source": "src",
   "preferred-target": "native"
 }
