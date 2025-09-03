@@ -1,10 +1,29 @@
 ///|
+/// This method probes which compression does the given tag uses then tries to parse them.
+/// See also: parse_uncompressed
+pub fn parse(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
+  guard b.length() > 2 else { return parse_uncompressed(b[:], littleEndian~) }
+  if b[0:2] == [0x1F, 0x8B] { // GZIP header
+    return parse_gzip(littleEndian~, b)
+  }
+  // ZLib headers, usually begins with 78 which is obviously higher than all of NBT type ids.
+  // 78 01 - No Compression/low
+  // 78 5E - Fast Compression
+  // 78 9C - Default Compression
+  // 78 DA - Best Compression 
+  if b[0] == 0x78 {
+    return parse_zlib(b, littleEndian~)
+  }
+  return parse_uncompressed(littleEndian~, b)
+}
+
+///|
 /// Parse gzipped binary NBT data to NBTTags.
 /// By default, Minecraft compresses its tag in GZip.
 pub fn parse_gzip(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
   let slice = @io.Slice::new(b.to_array())
   let (reader, err) = @gzip.Reader::new(@io.Buffer::from_bytes(b))
-  if err is Some(e){
+  if err is Some(e) {
     raise e
   }
   let result = @io.Buffer::new().to_slice()
@@ -14,7 +33,7 @@ pub fn parse_gzip(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise 
       raise e
     }
     if readBytes <= 0 {
-      break;
+      break
     }
   }
   parse_uncompressed(littleEndian~, result.to_bytes()[:])
@@ -56,6 +75,8 @@ pub fn parse_uncompressed(
 }
 
 ///|
+/// This method parses a complete NBTTag from uncompressed byte stream.
+/// 
 /// A tag is an individual part of the data tree. 
 /// The first byte in a tag is the tag type (ID), followed by a two byte big-endian unsigned 16-bit integer (ushort) for the length of the name,
 /// then the name as a string in UTF-8 format (Note TAG_End is not named and does not contain the extra 2 bytes; the name is assumed to be empty). 
@@ -66,7 +87,8 @@ pub fn parse(buf : ReaderByteBuf) -> @nbt.NBTTag raise {
 }
 
 ///|
-/// Read a tag with given type from bytebuf 
+/// This method parses a NBTTag as the given type. The type byte is not read to allow
+/// certain tag containers to parse their children recursively.
 fn parse_as(buf : ReaderByteBuf, _type : Byte) -> @nbt.NBTTag raise {
   return match _type {
     @nbt.TypeEnd => @nbt.NBTTag::TagEnd
@@ -92,6 +114,7 @@ fn parse_as(buf : ReaderByteBuf, _type : Byte) -> @nbt.NBTTag raise {
 }
 
 ///|
+/// This method reads a complete named tag from uncompressed byte stream.
 fn parse_named_tag(buf : ReaderByteBuf) -> (String, @nbt.NBTTag) raise {
   let _type = buf.read_byte()
   if _type == @nbt.TypeEnd {
@@ -105,6 +128,7 @@ fn parse_named_tag(buf : ReaderByteBuf) -> (String, @nbt.NBTTag) raise {
 }
 
 ///|
+/// This method parses a CompoundTag from uncompressed byte stream.
 fn parse_map(buf : ReaderByteBuf) -> Map[String, @nbt.NBTTag] raise {
   let map : Map[String, @nbt.NBTTag] = {}
   while true {
@@ -118,6 +142,7 @@ fn parse_map(buf : ReaderByteBuf) -> Map[String, @nbt.NBTTag] raise {
 }
 
 ///|
+/// This method parses a ListTag from uncompressed byte stream.
 fn parse_list(buf : ReaderByteBuf) -> @nbt.NBTTag raise {
   let component_type = buf.read_byte()
   let size = buf.read_i32()
@@ -142,6 +167,6 @@ fn parse_list_long(buf : ReaderByteBuf) -> FixedArray[Int64] raise {
 }
 
 ///|
-fn parse_byte_array(buf : 也是经典的ReaderByteBuf) -> @bytes.View raise {
+fn parse_byte_array(buf : ReaderByteBuf) -> @bytes.View raise {
   buf.read_byte_array(buf.read_i32())
 }

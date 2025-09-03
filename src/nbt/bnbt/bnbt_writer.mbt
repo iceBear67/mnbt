@@ -26,7 +26,6 @@ pub fn write_gzip(
 ) -> @io.Buffer raise {
   let result = @io.Buffer::new()
   let gzw = @gzip.Writer::new(result)
-
   let pipew = @buffer.new()
   write_uncompressed(littleEndian~, tag, pipew)
   let slice = @io.Slice::new(pipew.contents().to_array())
