@@ -5,6 +5,7 @@
     "moonbitlang/x/encoding",
     "gmlewis/zlib",
     "gmlewis/io",
+    "gmlewis/gzip",
     "gmlewis/flate"
     ],
     "test-import": [

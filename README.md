@@ -26,7 +26,7 @@ fn access_tag(tag: @nbt.NBTTag) -> String? {
 }
 ```
 
-Usually, NBT files are compressed in GZip format, which unfortunately haven't been supported in MoonBit community. However, uncompressed or zlib compressed NBT files are supported by this library, and you can process GZipped NBT files by pre-decompressing it beforehand.
+For GZipped NBT Tags, you may experience stack overflow on WASM Targets. This is an issue from upstream [gmlewis/moonbit-gzip](https://github.com/gmlewis/moonbit-gzip/releases/tag/v0.25.0), you can mitigate the problem by decompresising the file beforehand.
 
 Region formats like "Linear" can also be processed by decompressing then using `parse_uncompressed` to get a NBTTag.
 

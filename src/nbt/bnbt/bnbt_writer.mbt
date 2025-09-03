@@ -13,19 +13,41 @@ pub fn write_uncompressed(
   tag : @nbt.NBTTag,
   buf : @buffer.T,
 ) -> Unit raise {
-  write(tag, WriterByteBuf::{ littleEndian, buffer: buf })
+  write_with_type(tag, WriterByteBuf::{ littleEndian, buffer: buf })
 }
 
 ///|
+/// This serializes a valid @nbt.NBTTag into given buffer in GZip format.
+/// This is the default format of Minecraft.
+/// see also: write_uncompressed
+pub fn write_gzip(
+  littleEndian? : Bool = false,
+  tag : @nbt.NBTTag,
+) -> @io.Buffer raise {
+  let result = @io.Buffer::new()
+  let gzw = @gzip.Writer::new(result)
+
+  let pipew = @buffer.new()
+  write_uncompressed(littleEndian~, tag, pipew)
+  let slice = @io.Slice::new(pipew.contents().to_array())
+  let (_, err) = gzw.write(slice)
+  match err {
+    None => result
+    Some(e) => raise e
+  }
+}
+
+///|
+/// This method serializes a valid @nbt.NBTTag into given buffer with ZLib compression.
+/// see also: write_uncompressed
 pub fn write_zlib(
   littleEndian? : Bool = false,
   tag : @nbt.NBTTag,
 ) -> @io.Buffer raise {
   let dict = @io.Slice::new([])
   let pipew = @io.Buffer::new()
-  
   let nbtBuf = @buffer.new()
-  write_uncompressed(littleEndian = littleEndian, tag, nbtBuf)
+  write_uncompressed(littleEndian~, tag, nbtBuf)
   let buf = @io.Buffer::from_bytes(nbtBuf.contents())
   let zlibw = @zlib.Writer::new_dict(pipew, dict)
   let (_, err) = zlibw.write(buf.to_slice())
@@ -49,17 +71,17 @@ pub fn write_compound(tag : @nbt.NBTTag, out : WriterByteBuf) -> Unit raise {
           write_compound(value, out)
           continue
         } else {
-          write(with_type=false, value, out)
+          write_with_type(with_type=false, value, out)
         }
       }
-      write(@nbt.NBTTag::TagEnd, out)
+      write_with_type(@nbt.NBTTag::TagEnd, out)
     }
     _ => return
   }
 }
 
 ///|
-fn write(
+fn write_with_type(
   with_type? : Bool = true,
   tag : @nbt.NBTTag,
   out : WriterByteBuf,
@@ -82,7 +104,7 @@ fn write(
       out.write_byte(comT)
       out.write_int(l.length())
       for i in l {
-        write(with_type=false, i, out)
+        write_with_type(with_type=false, i, out)
       }
     }
     TagString(s) => out.write_string(s)

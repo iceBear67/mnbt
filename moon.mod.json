@@ -4,7 +4,8 @@
   "deps": {
     "moonbitlang/x": "0.4.32",
     "gmlewis/zlib": "0.20.20",
-    "gmlewis/flate": "0.35.19"
+    "gmlewis/flate": "0.35.19",
+    "gmlewis/gzip": "0.33.20"
   },
   "readme": "README.md",
   "repository": "https://github.com/iceBear67/mnbt",

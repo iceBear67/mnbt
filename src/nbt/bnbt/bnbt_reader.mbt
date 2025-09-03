@@ -1,22 +1,44 @@
 ///|
+/// Parse gzipped binary NBT data to NBTTags.
+/// By default, Minecraft compresses its tag in GZip.
+pub fn parse_gzip(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
+  let slice = @io.Slice::new(b.to_array())
+  let (reader, err) = @gzip.Reader::new(@io.Buffer::from_bytes(b))
+  if err is Some(e){
+    raise e
+  }
+  let result = @io.Buffer::new().to_slice()
+  while true {
+    let (readBytes, err) = reader.read(result)
+    if err is Some(e) {
+      raise e
+    }
+    if readBytes <= 0 {
+      break;
+    }
+  }
+  parse_uncompressed(littleEndian~, result.to_bytes()[:])
+}
+
+///|
 /// Parse zlib compressed binary NBT data to NBTTags.
 /// See also: #parse_uncompressed
-pub fn parse_zlib(littleEndian : Bool, b : Bytes) -> @nbt.NBTTag raise {
+pub fn parse_zlib(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
   let inp = @io.Buffer::from_bytes(b)
   let dict = @io.Slice::new([])
   let (zr, err) = @zlib.Reader::new_dict(inp, dict)
   if err is Some(e) {
     raise e
   }
-  let ungzipped = @io.Buffer::new().to_slice()
+  let decompressed = @io.Buffer::new().to_slice()
   while true {
-    let (readBytes, err) = zr.read(ungzipped)
+    let (readBytes, err) = zr.read(decompressed)
     guard err is None else { break }
     if readBytes <= 0 {
       break
     }
   }
-  return parse_uncompressed(littleEndian~, ungzipped.to_bytes()[:])
+  return parse_uncompressed(littleEndian~, decompressed.to_bytes()[:])
 }
 
 ///|
@@ -100,9 +122,9 @@ fn parse_list(buf : ReaderByteBuf) -> @nbt.NBTTag raise {
   let component_type = buf.read_byte()
   let size = buf.read_i32()
   let result = if component_type == @nbt.TypeCompound {
-    FixedArray::makei(size, (_) => @nbt.NBTTag::TagCompound("", parse_map(buf)))
-  }else {
-    FixedArray::makei(size, (_) => parse_as(buf, component_type))
+    FixedArray::makei(size, _ => @nbt.NBTTag::TagCompound("", parse_map(buf)))
+  } else {
+    FixedArray::makei(size, _ => parse_as(buf, component_type))
   }
   @nbt.NBTTag::TagList(component_type, result)
 }
@@ -120,6 +142,6 @@ fn parse_list_long(buf : ReaderByteBuf) -> FixedArray[Int64] raise {
 }
 
 ///|
-fn parse_byte_array(buf : ReaderByteBuf) -> @bytes.View raise {
+fn parse_byte_array(buf : 也是经典的ReaderByteBuf) -> @bytes.View raise {
   buf.read_byte_array(buf.read_i32())
 }
