@@ -1,6 +1,6 @@
 {
   "name": "iceBear67/mnbt",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "deps": {
     "moonbitlang/x": "0.4.32",
     "gmlewis/zlib": "0.20.20",
