@@ -1,7 +1,7 @@
 ///|
 /// This method probes which compression does the given tag uses then tries to parse them.
 /// See also: parse_uncompressed
-pub fn parse(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
+pub fn parse_auto(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
   guard b.length() > 2 else { return parse_uncompressed(b[:], littleEndian~) }
   if b[0:2] == [0x1F, 0x8B] { // GZIP header
     return parse_gzip(littleEndian~, b)
@@ -26,21 +26,13 @@ pub fn parse_gzip(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise 
   if err is Some(e) {
     raise e
   }
-  let result = @io.Buffer::new().to_slice()
-  while true {
-    let (readBytes, err) = reader.read(result)
-    if err is Some(e) {
-      raise e
-    }
-    if readBytes <= 0 {
-      break
-    }
-  }
+  let result = @io.Buffer::new()
+  guard @io.copy(result, reader) is (_, None)
   parse_uncompressed(littleEndian~, result.to_bytes()[:])
 }
 
 ///|
-/// Parse zlib compressed binary NBT data to NBTTags.
+/// Parse zlib compressed binary NBT data to NBTTags.parse_gzip
 /// See also: #parse_uncompressed
 pub fn parse_zlib(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
   let inp = @io.Buffer::from_bytes(b)
@@ -49,14 +41,8 @@ pub fn parse_zlib(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise 
   if err is Some(e) {
     raise e
   }
-  let decompressed = @io.Buffer::new().to_slice()
-  while true {
-    let (readBytes, err) = zr.read(decompressed)
-    guard err is None else { break }
-    if readBytes <= 0 {
-      break
-    }
-  }
+  let decompressed = @io.Buffer::new()
+  guard @io.copy(decompressed, zr) is (_, None)
   return parse_uncompressed(littleEndian~, decompressed.to_bytes()[:])
 }
 

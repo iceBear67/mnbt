@@ -25,15 +25,19 @@ pub fn write_gzip(
   tag : @nbt.NBTTag,
 ) -> @io.Buffer raise {
   let result = @io.Buffer::new()
-  let gzw = @gzip.Writer::new(result)
-  let pipew = @buffer.new()
-  write_uncompressed(littleEndian~, tag, pipew)
-  let slice = @io.Slice::new(pipew.contents().to_array())
-  let (_, err) = gzw.write(slice)
-  match err {
+  let gzipWriter = @gzip.Writer::new(result)
+  
+  let uncompressed = @buffer.new()
+  write_uncompressed(littleEndian~, tag, uncompressed)
+  let slice = @io.Slice::new(uncompressed.to_bytes().to_array())
+
+  let (_, err) = gzipWriter.write(slice)
+  guard gzipWriter.close() is None
+  let r = match err {
     None => result
     Some(e) => raise e
   }
+  return r
 }
 
 ///|
@@ -41,20 +45,20 @@ pub fn write_gzip(
 /// see also: write_uncompressed
 pub fn write_zlib(
   littleEndian? : Bool = false,
+  dict?: @io.Slice[Byte] = @io.Slice::new([]),
   tag : @nbt.NBTTag,
 ) -> @io.Buffer raise {
-  let dict = @io.Slice::new([])
-  let pipew = @io.Buffer::new()
   let nbtBuf = @buffer.new()
   write_uncompressed(littleEndian~, tag, nbtBuf)
-  let buf = @io.Buffer::from_bytes(nbtBuf.contents())
-  let zlibw = @zlib.Writer::new_dict(pipew, dict)
-  let (_, err) = zlibw.write(buf.to_slice())
-  if err != None {
-    raise fail("Failed to compress ")
-  }
+
+  let result = @io.Buffer::new()
+  let zlibw = @zlib.Writer::new_dict(result, dict)
+
+  // let buf = @io.Buffer::from_bytes(nbtBuf.contents())
+  guard zlibw.write(@io.Slice::new(nbtBuf.contents().to_array())) is (_, None)
+  // guard @io.copy(zlibw, buf) is (_, None)
   guard zlibw.close() is None
-  buf
+  result
 }
 
 ///|

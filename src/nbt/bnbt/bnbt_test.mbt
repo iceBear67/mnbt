@@ -4,13 +4,64 @@ test "test reading and writing uncompressed schematic nbt" {
   let parsed = @bnbt.parse_uncompressed(schema[:])
   let buffer = @buffer.new()
   @bnbt.write_uncompressed(parsed, buffer)
+  let _ = @bnbt.parse_uncompressed(buffer.contents()[:])
 }
 
 ///|
-test "check value integrity" {
+test "check value integrity, uncompressed" {
   let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
   let parsed = @bnbt.parse_uncompressed(schema[:])
-  assert_true(
+  validate_uncompressed(parsed)
+}
+
+test "check value integrity, zlib-defalted" {
+  let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt.zlib")
+  let parsed = @bnbt.parse_zlib(schema)
+  validate_uncompressed(parsed)
+}
+
+test "check value integrity, gzipped" {
+  let schema = @fs.read_file_to_bytes("test_cases/test_data.dat")
+  let parsed = @bnbt.parse_gzip(schema)
+  validate_uncompressed(parsed)
+}
+
+test "check value integrity, using auto recognition" {
+  let zlib = @fs.read_file_to_bytes("test_cases/test_data.nbt.zlib")
+  let gzip = @fs.read_file_to_bytes("test_cases/test_data.dat")
+  let uncompressed = @fs.read_file_to_bytes("test_cases/test_data.nbt")
+  validate_uncompressed(@bnbt.parse_auto(gzip))
+  validate_uncompressed(@bnbt.parse_auto(zlib))
+  validate_uncompressed(@bnbt.parse_auto(uncompressed))
+}
+
+test "test plain writer"{
+  let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
+  let parsed = @bnbt.parse_uncompressed(schema[:])
+  let buf = @buffer.new()
+  let _ = @bnbt.write_uncompressed(parsed, buf)
+  validate_uncompressed(parsed)
+  @fs.write_bytes_to_file("/tmp/test.nbt", buf.contents())
+  validate_uncompressed(@bnbt.parse_uncompressed(buf.contents()))
+}
+
+test "test gzip writer" {
+  let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
+  let parsed = @bnbt.parse_uncompressed(schema[:])
+  let gzippedd = @bnbt.write_gzip(parsed).to_bytes()
+  println(gzippedd[0:2])
+  validate_uncompressed(@bnbt.parse_gzip(gzippedd))
+}
+
+test "test zlib writer" {
+  let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
+  let parsed = @bnbt.parse_uncompressed(schema[:])
+  let zlib = @bnbt.write_zlib(parsed)
+  validate_uncompressed(@bnbt.parse_zlib(zlib.to_bytes()))
+}
+
+fn validate_uncompressed(parsed: @nbt.NBTTag) -> Unit raise{
+    assert_true(
     parsed is @nbt.NBTTag::TagCompound(_, _),
     msg="The root element should be a compound.",
   )

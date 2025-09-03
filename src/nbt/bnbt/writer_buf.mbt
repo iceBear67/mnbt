@@ -30,9 +30,9 @@ pub fn WriterByteBuf::write_int64(self : WriterByteBuf, i : Int64) -> Unit {
 ///|
 pub fn WriterByteBuf::write_uint(self : WriterByteBuf, i : UInt) -> Unit {
   if self.littleEndian {
-    self.buffer.write_uint_be(i)
-  } else {
     self.buffer.write_uint_le(i)
+  } else {
+    self.buffer.write_uint_be(i)
   }
 }
 
@@ -81,10 +81,10 @@ fn WriterByteBuf::write_string(
       "The given String is longer than maximum length that NBT can hold (\{str.length()} > \{@uint16.max_value})",
     )
   }
-  self.write_uint16(str.length().to_uint16())
-  if str.length() == 0 {
+  let utf = @encoding.encode(UTF8, str)
+  self.write_uint16(utf.length().to_uint16())
+  if utf.length() == 0 {
     return
   }
-  let utf = @encoding.encode(UTF8, str)
   self.write_bytes(utf[:utf.length()]) // strip the null character
 }
