@@ -2,7 +2,7 @@
 pub typealias Byte as NBTType
 
 ///|
-/// 
+///
 pub(all) enum NBTTag {
   TagEnd
   TagByte(Byte)
@@ -11,7 +11,7 @@ pub(all) enum NBTTag {
   TagLong(Int64)
   TagFloat(Float)
   TagDouble(Double)
-  TagByteArray(@bytes.View)
+  TagByteArray(Bytes)
   TagString(String)
   TagList(NBTType, FixedArray[NBTTag])
   TagCompound(String, Map[String, NBTTag])
@@ -20,7 +20,7 @@ pub(all) enum NBTTag {
 } derive(Show, Eq)
 
 ///|
-pub fn NBTTag::to_type_id(self : NBTTag) -> Byte {
+pub fn to_type_id(self : NBTTag) -> Byte {
   match self {
     TagIntArray(_) => TypeIntArray
     TagCompound(_) => TypeCompound
@@ -78,11 +78,11 @@ pub const TypeIntArray : Byte = 11
 pub const TypeLongArray : Byte = 12
 
 ///|
-pub fn NBTTag::iter(self : NBTTag) -> Iter[NBTTag] {
+pub fn iter(self : NBTTag) -> Iter[NBTTag] {
   return Iter::new(fn(_yield) {
     guard _yield(self) is IterContinue else { IterEnd }
     match self {
-      TagCompound(name, comp) => {
+      TagCompound(_, comp) => {
         for _, entry in comp.iter() {
           let (_, v) = entry
           for c in v.iter() {
@@ -108,10 +108,12 @@ pub fn NBTTag::iter(self : NBTTag) -> Iter[NBTTag] {
 
 ///|
 pub suberror NoSuchProperty String
+
+///|
 pub suberror NotCompoundTag
 
 ///|
-pub fn NBTTag::node(self : NBTTag, name : String) -> NBTTag raise {
+pub fn node(self : NBTTag, name : String) -> NBTTag raise {
   if self is NBTTag::TagCompound(_, map) && map.contains(name) {
     return map[name]
   } else {
@@ -119,15 +121,23 @@ pub fn NBTTag::node(self : NBTTag, name : String) -> NBTTag raise {
   }
 }
 
-pub fn NBTTag::node_at(self:NBTTag, index: Int) -> NBTTag raise {
-  if self is NBTTag::TagList(t, l) && l.length() < index {
+///|
+pub fn node_at(self : NBTTag, index : Int) -> NBTTag raise {
+  if self is NBTTag::TagList(_, l) && l.length() < index {
     return l[index]
   } else {
-    raise NoSuchProperty("Index \{index} is too long or the tag is not taglist.")
+    raise NoSuchProperty(
+      "Index \{index} is too long or the tag is not taglist.",
+    )
   }
 }
 
-pub fn NBTTag::node_or_create(self:NBTTag, name: String, defaultValue: () -> NBTTag) -> NBTTag raise {
+///|
+pub fn node_or_create(
+  self : NBTTag,
+  name : String,
+  defaultValue : () -> NBTTag,
+) -> NBTTag raise {
   if self is NBTTag::TagCompound(_, map) {
     return map.get_or_init(name, defaultValue)
   } else {
@@ -136,7 +146,7 @@ pub fn NBTTag::node_or_create(self:NBTTag, name: String, defaultValue: () -> NBT
 }
 
 ///|
-pub fn NBTTag::get_int(self : NBTTag, property : String) -> Int raise {
+pub fn get_int(self : NBTTag, property : String) -> Int raise {
   if self.node(property) is NBTTag::TagInt(i) {
     return i
   } else {
@@ -144,7 +154,12 @@ pub fn NBTTag::get_int(self : NBTTag, property : String) -> Int raise {
   }
 }
 
-pub fn NBTTag::set(self: NBTTag, property: String, value: NBTTag) -> Unit raise {
+///|
+pub fn set(
+  self : NBTTag,
+  property : String,
+  value : NBTTag,
+) -> Unit raise {
   if self is TagCompound(_, map) {
     map[property] = value
   } else {
@@ -152,9 +167,8 @@ pub fn NBTTag::set(self: NBTTag, property: String, value: NBTTag) -> Unit raise 
   }
 }
 
-
 ///|
-pub fn NBTTag::get_short(self : NBTTag, property : String) -> Int16 raise {
+pub fn get_short(self : NBTTag, property : String) -> Int16 raise {
   if self.node(property) is NBTTag::TagShort(i) {
     return i
   } else {
@@ -163,7 +177,7 @@ pub fn NBTTag::get_short(self : NBTTag, property : String) -> Int16 raise {
 }
 
 ///|
-pub fn NBTTag::get_long(self : NBTTag, property : String) -> Int64 raise {
+pub fn get_long(self : NBTTag, property : String) -> Int64 raise {
   if self.node(property) is NBTTag::TagLong(i) {
     return i
   } else {
@@ -172,7 +186,7 @@ pub fn NBTTag::get_long(self : NBTTag, property : String) -> Int64 raise {
 }
 
 ///|
-pub fn NBTTag::get_byte(self : NBTTag, property : String) -> Byte raise {
+pub fn get_byte(self : NBTTag, property : String) -> Byte raise {
   if self.node(property) is NBTTag::TagByte(i) {
     return i
   } else {
@@ -181,7 +195,7 @@ pub fn NBTTag::get_byte(self : NBTTag, property : String) -> Byte raise {
 }
 
 ///|
-pub fn NBTTag::get_string(self : NBTTag, property : String) -> String raise {
+pub fn get_string(self : NBTTag, property : String) -> String raise {
   if self is NBTTag::TagCompound(_, map) &&
     map[property] is NBTTag::TagString(i) {
     return i
@@ -191,7 +205,7 @@ pub fn NBTTag::get_string(self : NBTTag, property : String) -> String raise {
 }
 
 ///|
-pub fn NBTTag::get_compound(
+pub fn get_compound(
   self : NBTTag,
   property : String,
 ) -> Map[String, NBTTag] raise {
@@ -203,7 +217,7 @@ pub fn NBTTag::get_compound(
 }
 
 ///|
-pub fn NBTTag::get_list(self : NBTTag, property : String) -> NBTTag raise {
+pub fn get_list(self : NBTTag, property : String) -> NBTTag raise {
   if self is NBTTag::TagCompound(_, map) &&
     map[property] is (NBTTag::TagList(_, _) as l) {
     return l
@@ -213,7 +227,7 @@ pub fn NBTTag::get_list(self : NBTTag, property : String) -> NBTTag raise {
 }
 
 ///|
-pub fn NBTTag::get_float(self : NBTTag, property : String) -> Float raise {
+pub fn get_float(self : NBTTag, property : String) -> Float raise {
   if self.node(property) is NBTTag::TagFloat(i) {
     return i
   } else {
@@ -222,7 +236,7 @@ pub fn NBTTag::get_float(self : NBTTag, property : String) -> Float raise {
 }
 
 ///|
-pub fn NBTTag::get_double(self : NBTTag, property : String) -> Double raise {
+pub fn get_double(self : NBTTag, property : String) -> Double raise {
   if self.node(property) is NBTTag::TagDouble(i) {
     return i
   } else {
@@ -231,13 +245,72 @@ pub fn NBTTag::get_double(self : NBTTag, property : String) -> Double raise {
 }
 
 ///|
-pub fn NBTTag::get_byte_array(
+pub fn get_byte_array(
   self : NBTTag,
   property : String,
-) -> @bytes.View raise {
-  if self.node(property)is NBTTag::TagByteArray(b) {
+) -> Bytes raise {
+  if self.node(property) is NBTTag::TagByteArray(b) {
     return b
   } else {
     raise NoSuchProperty(property)
   }
+}
+
+pub fn as_int(self: NBTTag) -> Int? {
+  guard self is TagInt(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_byte(self: NBTTag) -> Byte? {
+  guard self is TagByte(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_short(self: NBTTag) -> Int16? {
+  guard self is TagShort(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_long(self: NBTTag) -> Int64? {
+  guard self is TagLong(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_string(self: NBTTag) -> String? {
+  guard self is TagString(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_float(self: NBTTag) -> Float? {
+  guard self is TagFloat(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_double(self: NBTTag) -> Double? {
+  guard self is TagDouble(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_int_array(self: NBTTag) -> FixedArray[Int]? {
+  guard self is TagIntArray(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_long_array(self: NBTTag) -> FixedArray[Int64]? {
+  guard self is TagLongArray(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_byte_array(self: NBTTag) -> Bytes? {
+  guard self is TagByteArray(i) else { return None }
+  Some(i)
+}
+
+pub  fn as_compound(self: NBTTag) -> (String, Map[String, NBTTag])? {
+  guard self is TagCompound(a,b) else { return None }
+  Some((a,b))
+}
+pub  fn as_list(self: NBTTag) -> FixedArray[NBTTag]? {
+  guard self is TagList(_,b) else { return None }
+  Some(b)
 }

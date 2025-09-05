@@ -10,7 +10,7 @@ pub fn parse_auto(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise 
   // 78 01 - No Compression/low
   // 78 5E - Fast Compression
   // 78 9C - Default Compression
-  // 78 DA - Best Compression 
+  // 78 DA - Best Compression
   if b[0] == 0x78 {
     return parse_zlib(b, littleEndian~)
   }
@@ -21,7 +21,7 @@ pub fn parse_auto(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise 
 /// Parse gzipped binary NBT data to NBTTags.
 /// By default, Minecraft compresses its tag in GZip.
 pub fn parse_gzip(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise {
-  let slice = @io.Slice::new(b.to_array())
+  let _ = @io.Slice::new(b.to_array())
   let (reader, err) = @gzip.Reader::new(@io.Buffer::from_bytes(b))
   if err is Some(e) {
     raise e
@@ -50,7 +50,7 @@ pub fn parse_zlib(littleEndian? : Bool = false, b : Bytes) -> @nbt.NBTTag raise 
 /// Parses uncompressed binary NBT data to NBTTags.
 /// @param littleEndian In Bedrock Edition, all numbers are encoded in little-endian.
 /// By default, this method uses big endian, which corresponds to the default behaviour of MC: Java Edition.
-/// 
+///
 /// @raise UnknownTagType, EndOfFile
 pub fn parse_uncompressed(
   littleEndian? : Bool = false,
@@ -62,12 +62,12 @@ pub fn parse_uncompressed(
 
 ///|
 /// This method parses a complete NBTTag from uncompressed byte stream.
-/// 
-/// A tag is an individual part of the data tree. 
+///
+/// A tag is an individual part of the data tree.
 /// The first byte in a tag is the tag type (ID), followed by a two byte big-endian unsigned 16-bit integer (ushort) for the length of the name,
-/// then the name as a string in UTF-8 format (Note TAG_End is not named and does not contain the extra 2 bytes; the name is assumed to be empty). 
-/// Finally, depending on the type of the tag, the bytes that follow are part of that tag's payload. 
-/// 
+/// then the name as a string in UTF-8 format (Note TAG_End is not named and does not contain the extra 2 bytes; the name is assumed to be empty).
+/// Finally, depending on the type of the tag, the bytes that follow are part of that tag's payload.
+///
 pub fn parse(buf : ReaderByteBuf) -> @nbt.NBTTag raise {
   parse_as(buf, buf.read_byte())
 }
@@ -153,6 +153,6 @@ fn parse_list_long(buf : ReaderByteBuf) -> FixedArray[Int64] raise {
 }
 
 ///|
-fn parse_byte_array(buf : ReaderByteBuf) -> @bytes.View raise {
-  buf.read_byte_array(buf.read_i32())
+fn parse_byte_array(buf : ReaderByteBuf) -> Bytes raise {
+  buf.read_byte_array(buf.read_i32()).to_bytes()
 }

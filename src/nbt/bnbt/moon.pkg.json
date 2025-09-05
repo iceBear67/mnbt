@@ -1,14 +1,11 @@
 {
-    "import": [
-        "iceBear67/mnbt/nbt",
-    "moonbitlang/x/fs",
+  "import": [
+    "iceBear67/mnbt/nbt",
     "moonbitlang/x/encoding",
     "gmlewis/zlib",
     "gmlewis/io",
     "gmlewis/gzip",
     "gmlewis/flate"
-    ],
-    "test-import": [
-      "gmlewis/base64"
-    ]
+  ],
+  "test-import": ["gmlewis/base64", "moonbitlang/x/fs"]
 }

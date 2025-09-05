@@ -34,10 +34,57 @@ Here's an example taken from our tests:
 ```MoonBit
 test "test reading and writing uncompressed schematic nbt" {
   let schema = @fs.read_file_to_bytes("test_cases/farm.nbt")
-  let parsed = @bnbt.parse_uncompressed(schema[:])
+  let parsed = @bnbt.parse_auto(schema[:])
   let buffer = @buffer.new()
   @bnbt.write_uncompressed(parsed, buffer)
 }
 ```
 
 I haven't tested its speed yet but it should be fast enough for most uses.
+
+## SNBT
+
+Since mnbt 0.3.0, SNBT (String representation of NBT) is also supported.
+
+Check our unit tests for more examples! Before using these functions, please check the documentation carefully.
+
+```moonbit
+///|
+test "test compound" {
+  let input =
+    #|{foo: 1, bar: "abc", baz: {}}
+  let result = @snbt.parse_tag(input)
+  let expect =
+    #|TagCompound("", {"foo": TagInt(1), "bar": TagString("abc"), "baz": TagCompound("baz", {})})
+  inspect(result, content=expect)
+  let input =
+    #|{X:3,Y:64,Z:129}
+  let result = @snbt.parse_tag(input)
+  let expect =
+    #|TagCompound("", {"X": TagInt(3), "Y": TagInt(64), "Z": TagInt(129)})
+  inspect(result, content=expect)
+}
+
+
+///|
+test "test writer" {
+  let input =
+    #|{X:3,Y:64,Z:129}
+  let result = @snbt.parse_tag(input)
+  let expect =
+    #|{"X": 3,"Y": 64,"Z": 129}
+  inspect(@snbt.write(result).join(""), content=expect)
+}
+```
+
+SNBT Parser also supports stream parsing.
+```moonbit
+// Iter[Result[SNBTToken, Error]].
+// You're expected to raise the error but you can keep reading too.
+@snbt.parse_token("hello").all(it => it is @snbt.SNBTToken)
+```
+
+Unfortunately, parsing SNBT into NBTTags in stream aren't supported, which means you will need to
+collect all these tokens before parsing tags. This is due to the complex nature of `Iter` s. 
+
+Contributions are always welcome!

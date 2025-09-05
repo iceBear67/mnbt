@@ -1,11 +1,12 @@
 {
   "name": "iceBear67/mnbt",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "deps": {
     "moonbitlang/x": "0.4.32",
     "gmlewis/zlib": "0.20.20",
     "gmlewis/flate": "0.35.19",
-    "gmlewis/gzip": "0.33.20"
+    "gmlewis/gzip": "0.33.20",
+    "moonbitlang/regexp": "0.3.1"
   },
   "readme": "README.md",
   "repository": "https://github.com/iceBear67/mnbt",
@@ -13,5 +14,5 @@
   "keywords": [],
   "description": "A NBT Parser for MoonBit language",
   "source": "src",
-  "preferred-target": "native"
+  "preferred-target": "js"
 }

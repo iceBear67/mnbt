@@ -35,6 +35,13 @@ test "check value integrity, using auto recognition" {
   validate_uncompressed(@bnbt.parse_auto(uncompressed))
 }
 
+test "test iter"{
+  let uncompressed = @bnbt.parse_uncompressed(@fs.read_file_to_bytes("test_cases/test_data.nbt"))
+  let expect = 
+  #|[TagCompound("root", {"byte": TagByte(b'\x01'), "short": TagShort(1), "int": TagInt(1), "long": TagLong(1), "float": TagFloat(42), "double": TagDouble(114514), "string": TagString("想吃板烧鸡腿堡......"), "bytearray": TagByteArray(b"\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\x8c\x21\x0a"), "intarray": TagIntArray([1, 2, 3, 4, 5]), "longarray": TagLongArray([114, 514, 1919, 810])}), TagByte(b'\x01'), TagShort(1), TagInt(1), TagLong(1), TagFloat(42), TagDouble(114514), TagString("想吃板烧鸡腿堡......"), TagByteArray(b"\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\x8c\x21\x0a"), TagIntArray([1, 2, 3, 4, 5]), TagLongArray([114, 514, 1919, 810])]
+  inspect(uncompressed.iter().collect(), content = expect)
+}
+
 test "test plain writer"{
   let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
   let parsed = @bnbt.parse_uncompressed(schema[:])
@@ -49,7 +56,6 @@ test "test gzip writer" {
   let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
   let parsed = @bnbt.parse_uncompressed(schema[:])
   let gzippedd = @bnbt.write_gzip(parsed).to_bytes()
-  println(gzippedd[0:2])
   validate_uncompressed(@bnbt.parse_gzip(gzippedd))
 }
 

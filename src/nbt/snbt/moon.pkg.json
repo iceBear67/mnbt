@@ -1,0 +1,9 @@
+{
+  "import": [
+    "iceBear67/mnbt/nbt",
+    "moonbitlang/regexp",
+    "moonbitlang/x/encoding",
+    "moonbitlang/x/num"
+  ],
+  "test-import": ["iceBear67/mnbt/nbt/bnbt", "moonbitlang/x/fs"]
+}

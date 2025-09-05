@@ -5,7 +5,7 @@ pub suberror UnknownTagType String
 
 ///|
 /// This serializes a valid@nbt.NBTTag object into the given buffer.
-/// All NBT files created by Minecraft have either a [NBT Compound / JSON Object] compound or 
+/// All NBT files created by Minecraft have either a [NBT Compound / JSON Object] compound or
 /// sometimes a [NBT List / JSON Array] list‌[Bedrock Edition only] as the root tag, this tag has a name but is often the empty string.
 /// To write a NBT Tag that minecraft can parse, please make sure there is a root node like that.
 pub fn write_uncompressed(
@@ -26,7 +26,7 @@ pub fn write_gzip(
 ) -> @io.Buffer raise {
   let result = @io.Buffer::new()
   let gzipWriter = @gzip.Writer::new(result)
-  
+
   let uncompressed = @buffer.new()
   write_uncompressed(littleEndian~, tag, uncompressed)
   let slice = @io.Slice::new(uncompressed.to_bytes().to_array())
@@ -64,7 +64,7 @@ pub fn write_zlib(
 ///|
 pub fn write_compound(tag : @nbt.NBTTag, out : WriterByteBuf) -> Unit raise {
   match tag {
-    TagCompound(name, map) => {
+    TagCompound(_, map) => {
       for _, entry in map.iter() {
         let (key, value) = entry
         let tagType = value.to_type_id()
