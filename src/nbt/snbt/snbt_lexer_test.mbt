@@ -4,6 +4,8 @@ test "test snbt basic literals" {
   inspect(@snbt.parse_token("'hello'"), content="[Ok(String(\"hello\"))]")
   inspect(@snbt.parse_token("\"hello\""), content="[Ok(String(\"hello\"))]")
   inspect(@snbt.parse_token("1i"), content="[Ok(Int(1))]")
+  inspect(@snbt.parse_token("1B"), content="[Ok(Byte(b'\\x01'))]")
+  inspect(@snbt.parse_token("[1b]"), content="[Ok(ListBegin(Unknown)), Ok(Byte(b'\\x01')), Ok(ListEnd)]")
   inspect(@snbt.parse_token("1s"), content="[Ok(Short(1))]")
   inspect(@snbt.parse_token("1d"), content="[Ok(Double(1))]")
   inspect(@snbt.parse_token("1f"), content="[Ok(Float(1))]")
@@ -30,11 +32,8 @@ test "test array" {
     result,
     content="[Ok(ListBegin(Byte)), Ok(Byte(b'\\x01')), Ok(Comma), Ok(Byte(b'\\x02')), Ok(Comma), Ok(Byte(b'\\x03')), Ok(ListEnd)]",
   )
-  let result = @snbt.parse_token("[3.2,64.5,129.5]")
-  inspect(
-    result,
-    content="[Ok(ListBegin(Unknown)), Ok(Double(3.2)), Ok(Comma), Ok(Double(64.5)), Ok(Comma), Ok(Double(129.5)), Ok(ListEnd)]",
-  )
+  let result = @snbt.parse_token("[D;3.2,64.5,129.5]")
+  assert_true(result.any(it => it is Err))
 }
 
 ///|

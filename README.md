@@ -88,3 +88,8 @@ Unfortunately, parsing SNBT into NBTTags in stream aren't supported, which means
 collect all these tokens before parsing tags. This is due to the complex nature of `Iter` s. 
 
 Contributions are always welcome!
+
+
+# Known limitation
+
+- Escape sequence `\N{Snowman}` won't work.

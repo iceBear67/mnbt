@@ -19,7 +19,7 @@ pub fn write(nbt : @nbt.NBTTag) -> Iter[String] {
 }
 
 ///|
-fn write_without_root(nbt : @nbt.NBTTag) -> Iter[String] {
+pub fn write_without_root(nbt : @nbt.NBTTag) -> Iter[String] {
   Iter::new(c => {
     let r = match nbt {
       TagCompound(_, compound) => {

@@ -29,6 +29,23 @@ test "test parsing primitive tags" {
     @snbt.parse_tag("[B;true, 1b, 2b]"),
     content="TagByteArray(b\"\\x01\\x01\\x02\")",
   )
+  inspect(@snbt.parse_tag("1."), content="TagFloat(1)")
+  //-16b, -16sb, and 240uB all represent byte value -16.
+  //15s, 15sS, and 15Us all represent short value 15.
+  //82u, -87uI, 30bu, and 253sb are all incorrect and give errors.
+
+  inspect(@snbt.parse_tag("-16b"), content="TagByte(b'\\xF0')")
+  inspect(@snbt.parse_tag("-16sb"), content="TagByte(b'\\xF0')")
+  inspect(@snbt.parse_tag("240Ub"), content="TagByte(b'\\xF0')")
+  inspect(@snbt.parse_tag("15s"), content="TagShort(15)")
+  inspect(@snbt.parse_tag("15sS"), content="TagShort(15)")
+  inspect(@snbt.parse_tag("15Us"), content="TagShort(15)")
+
+  inspect(@snbt.parse_tag("15UL"), content="TagLong(15)")
+  inspect(@snbt.parse_tag("15L"), content="TagLong(15)")
+
+  inspect(@snbt.parse_tag("-1"), content="TagInt(-1)")
+  inspect(@snbt.parse_tag("4294967295ui"), content="TagInt(-1)")
 }
 
 ///|
@@ -53,7 +70,7 @@ test "test reader" {
   let parsed = @bnbt.parse_uncompressed(schema[:])
   let result =
     #|{"root" :{"byte": 1B,"short": 1s,"int": 1,"long": 1L,"float": 42f,"double": 114514d,"string": "想吃板烧鸡腿堡......","bytearray": [B;229B,164B,169B,228B,189B,191B,227B,129B,168B,33B,32B,230B,130B,170B,233B,173B,148B,227B,129B,168B,33B,32B,32B,229B,164B,169B,228B,189B,191B,227B,129B,168B,33B,32B,230B,130B,170B,233B,173B,148B,227B,129B,168B,33B,32B,229B,164B,169B,228B,189B,191B,227B,129B,168B,33B,32B,230B,130B,170B,233B,173B,148B,227B,129B,140B,33B,10B],"intarray": [I;1,2,3,4,5],"longarray": [L;114L,514L,1919L,810L]}}
-  inspect(@snbt.write(parsed).join(""), content = result)
+  inspect(@snbt.write(parsed).join(""), content=result)
 }
 
 ///|
@@ -63,7 +80,7 @@ test "test writer" {
   let result = @snbt.parse_tag(input)
   let expect =
     #|{"X": 3,"Y": 64,"Z": 129}
-  inspect(@snbt.write(result).join(""), content=expect)
+  inspect(@snbt.write_without_root(result).join(""), content=expect)
 }
 
 ///|
