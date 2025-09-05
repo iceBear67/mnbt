@@ -155,11 +155,7 @@ pub fn get_int(self : NBTTag, property : String) -> Int raise {
 }
 
 ///|
-pub fn set(
-  self : NBTTag,
-  property : String,
-  value : NBTTag,
-) -> Unit raise {
+pub fn set(self : NBTTag, property : String, value : NBTTag) -> Unit raise {
   if self is TagCompound(_, map) {
     map[property] = value
   } else {
@@ -245,10 +241,7 @@ pub fn get_double(self : NBTTag, property : String) -> Double raise {
 }
 
 ///|
-pub fn get_byte_array(
-  self : NBTTag,
-  property : String,
-) -> Bytes raise {
+pub fn get_byte_array(self : NBTTag, property : String) -> Bytes raise {
   if self.node(property) is NBTTag::TagByteArray(b) {
     return b
   } else {
@@ -256,61 +249,74 @@ pub fn get_byte_array(
   }
 }
 
-pub fn as_int(self: NBTTag) -> Int? {
+///|
+pub fn as_int(self : NBTTag) -> Int? {
   guard self is TagInt(i) else { return None }
   Some(i)
 }
 
-pub  fn as_byte(self: NBTTag) -> Byte? {
+///|
+pub fn as_byte(self : NBTTag) -> Byte? {
   guard self is TagByte(i) else { return None }
   Some(i)
 }
 
-pub  fn as_short(self: NBTTag) -> Int16? {
+///|
+pub fn as_short(self : NBTTag) -> Int16? {
   guard self is TagShort(i) else { return None }
   Some(i)
 }
 
-pub  fn as_long(self: NBTTag) -> Int64? {
+///|
+pub fn as_long(self : NBTTag) -> Int64? {
   guard self is TagLong(i) else { return None }
   Some(i)
 }
 
-pub  fn as_string(self: NBTTag) -> String? {
+///|
+pub fn as_string(self : NBTTag) -> String? {
   guard self is TagString(i) else { return None }
   Some(i)
 }
 
-pub  fn as_float(self: NBTTag) -> Float? {
+///|
+pub fn as_float(self : NBTTag) -> Float? {
   guard self is TagFloat(i) else { return None }
   Some(i)
 }
 
-pub  fn as_double(self: NBTTag) -> Double? {
+///|
+pub fn as_double(self : NBTTag) -> Double? {
   guard self is TagDouble(i) else { return None }
   Some(i)
 }
 
-pub  fn as_int_array(self: NBTTag) -> FixedArray[Int]? {
+///|
+pub fn as_int_array(self : NBTTag) -> FixedArray[Int]? {
   guard self is TagIntArray(i) else { return None }
   Some(i)
 }
 
-pub  fn as_long_array(self: NBTTag) -> FixedArray[Int64]? {
+///|
+pub fn as_long_array(self : NBTTag) -> FixedArray[Int64]? {
   guard self is TagLongArray(i) else { return None }
   Some(i)
 }
 
-pub  fn as_byte_array(self: NBTTag) -> Bytes? {
+///|
+pub fn as_byte_array(self : NBTTag) -> Bytes? {
   guard self is TagByteArray(i) else { return None }
   Some(i)
 }
 
-pub  fn as_compound(self: NBTTag) -> (String, Map[String, NBTTag])? {
-  guard self is TagCompound(a,b) else { return None }
-  Some((a,b))
+///|
+pub fn as_compound(self : NBTTag) -> (String, Map[String, NBTTag])? {
+  guard self is TagCompound(a, b) else { return None }
+  Some((a, b))
 }
-pub  fn as_list(self: NBTTag) -> FixedArray[NBTTag]? {
-  guard self is TagList(_,b) else { return None }
+
+///|
+pub fn as_list(self : NBTTag) -> FixedArray[NBTTag]? {
+  guard self is TagList(_, b) else { return None }
   Some(b)
 }

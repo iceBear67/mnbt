@@ -5,6 +5,7 @@ test "test reading and writing uncompressed schematic nbt" {
   let buffer = @buffer.new()
   @bnbt.write_uncompressed(parsed, buffer)
   let _ = @bnbt.parse_uncompressed(buffer.contents()[:])
+
 }
 
 ///|
@@ -14,18 +15,21 @@ test "check value integrity, uncompressed" {
   validate_uncompressed(parsed)
 }
 
+///|
 test "check value integrity, zlib-defalted" {
   let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt.zlib")
   let parsed = @bnbt.parse_zlib(schema)
   validate_uncompressed(parsed)
 }
 
+///|
 test "check value integrity, gzipped" {
   let schema = @fs.read_file_to_bytes("test_cases/test_data.dat")
   let parsed = @bnbt.parse_gzip(schema)
   validate_uncompressed(parsed)
 }
 
+///|
 test "check value integrity, using auto recognition" {
   let zlib = @fs.read_file_to_bytes("test_cases/test_data.nbt.zlib")
   let gzip = @fs.read_file_to_bytes("test_cases/test_data.dat")
@@ -35,14 +39,18 @@ test "check value integrity, using auto recognition" {
   validate_uncompressed(@bnbt.parse_auto(uncompressed))
 }
 
-test "test iter"{
-  let uncompressed = @bnbt.parse_uncompressed(@fs.read_file_to_bytes("test_cases/test_data.nbt"))
-  let expect = 
-  #|[TagCompound("root", {"byte": TagByte(b'\x01'), "short": TagShort(1), "int": TagInt(1), "long": TagLong(1), "float": TagFloat(42), "double": TagDouble(114514), "string": TagString("想吃板烧鸡腿堡......"), "bytearray": TagByteArray(b"\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\x8c\x21\x0a"), "intarray": TagIntArray([1, 2, 3, 4, 5]), "longarray": TagLongArray([114, 514, 1919, 810])}), TagByte(b'\x01'), TagShort(1), TagInt(1), TagLong(1), TagFloat(42), TagDouble(114514), TagString("想吃板烧鸡腿堡......"), TagByteArray(b"\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\x8c\x21\x0a"), TagIntArray([1, 2, 3, 4, 5]), TagLongArray([114, 514, 1919, 810])]
-  inspect(uncompressed.iter().collect(), content = expect)
+///|
+test "test iter" {
+  let uncompressed = @bnbt.parse_uncompressed(
+    @fs.read_file_to_bytes("test_cases/test_data.nbt"),
+  )
+  let expect =
+    #|[TagCompound("root", {"byte": TagByte(b'\x01'), "short": TagShort(1), "int": TagInt(1), "long": TagLong(1), "float": TagFloat(42), "double": TagDouble(114514), "string": TagString("想吃板烧鸡腿堡......"), "bytearray": TagByteArray(b"\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\x8c\x21\x0a"), "intarray": TagIntArray([1, 2, 3, 4, 5]), "longarray": TagLongArray([114, 514, 1919, 810])}), TagByte(b'\x01'), TagShort(1), TagInt(1), TagLong(1), TagFloat(42), TagDouble(114514), TagString("想吃板烧鸡腿堡......"), TagByteArray(b"\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\xa8\x21\x20\xe5\xa4\xa9\xe4\xbd\xbf\xe3\x81\xa8\x21\x20\xe6\x82\xaa\xe9\xad\x94\xe3\x81\x8c\x21\x0a"), TagIntArray([1, 2, 3, 4, 5]), TagLongArray([114, 514, 1919, 810])]
+  inspect(uncompressed.iter().collect(), content=expect)
 }
 
-test "test plain writer"{
+///|
+test "test plain writer" {
   let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
   let parsed = @bnbt.parse_uncompressed(schema[:])
   let buf = @buffer.new()
@@ -52,6 +60,7 @@ test "test plain writer"{
   validate_uncompressed(@bnbt.parse_uncompressed(buf.contents()))
 }
 
+///|
 test "test gzip writer" {
   let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
   let parsed = @bnbt.parse_uncompressed(schema[:])
@@ -59,6 +68,7 @@ test "test gzip writer" {
   validate_uncompressed(@bnbt.parse_gzip(gzippedd))
 }
 
+///|
 test "test zlib writer" {
   let schema = @fs.read_file_to_bytes("test_cases/test_data.nbt")
   let parsed = @bnbt.parse_uncompressed(schema[:])
@@ -66,8 +76,9 @@ test "test zlib writer" {
   validate_uncompressed(@bnbt.parse_zlib(zlib.to_bytes()))
 }
 
-fn validate_uncompressed(parsed: @nbt.NBTTag) -> Unit raise{
-    assert_true(
+///|
+fn validate_uncompressed(parsed : @nbt.NBTTag) -> Unit raise {
+  assert_true(
     parsed is @nbt.NBTTag::TagCompound(_, _),
     msg="The root element should be a compound.",
   )

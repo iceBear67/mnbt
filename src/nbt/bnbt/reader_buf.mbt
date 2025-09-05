@@ -8,10 +8,9 @@ struct ReaderByteBuf {
   bytes : @bytes.View
 }
 
-pub fn newReader(littleEndian: Bool, bytes: @bytes.View) -> ReaderByteBuf {
-  ReaderByteBuf::{
-    littleEndian, readerIndex: 0, bytes
-  }
+///|
+pub fn newReader(littleEndian : Bool, bytes : @bytes.View) -> ReaderByteBuf {
+  ReaderByteBuf::{ littleEndian, readerIndex: 0, bytes }
 }
 
 ///|
@@ -22,7 +21,7 @@ pub fn ReaderByteBuf::remaining(self : ReaderByteBuf) -> Int {
 ///|
 pub fn ReaderByteBuf::read_byte(self : ReaderByteBuf) -> Byte raise EndOfFile {
   guard self.remaining() >= 1 else { raise EndOfFile }
-  let byte = self.bytes[self.readerIndex:self.readerIndex+1]
+  let byte = self.bytes[self.readerIndex:self.readerIndex + 1]
   self.readerIndex += 1
   byte[0]
 }

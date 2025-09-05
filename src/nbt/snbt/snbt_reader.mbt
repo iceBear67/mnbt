@@ -79,17 +79,17 @@ pub fn parse_tag(input : String) -> @nbt.NBTTag raise {
   parse_tag_from_token(array)
 }
 
-///| This method tries to strip the root tag if only one elements in the root compound.
+///|
+/// This method tries to strip the root tag if only one elements in the root compound.
 /// Also see: #parse_tag
 pub fn parse_tag_strip_root(input : String) -> @nbt.NBTTag raise {
   match parse_tag(input) {
-    TagCompound(_, map) as c => {
+    TagCompound(_, map) as c =>
       if map.size() == 1 {
         map.values().peek().unwrap()
       } else {
         c
       }
-    }
     other => other
   }
 }
@@ -178,18 +178,26 @@ fn parse_list(self : SNBTTokenReader) -> @nbt.NBTTag raise {
       guard element is ListBegin(_t) else {
         raise fail("Expect a listbegin but got \{element}")
       }
-      eType = _t.to_type_id().or(0)
+      eType = _t.to_type_id().unwrap_or(0)
       continue
     }
     match element {
-      ListEnd => {
+      ListEnd =>
         return match eType {
-          @nbt.TypeInt => @nbt.TagIntArray(FixedArray::from_array(array.map(it => it.as_int().unwrap())))
-          @nbt.TypeByte => @nbt.TagByteArray(Bytes::from_array(array.map(it => it.as_byte().unwrap())))
-          @nbt.TypeLong => @nbt.TagLongArray(FixedArray::from_array(array.map(it => it.as_long().unwrap())))
+          @nbt.TypeInt =>
+            @nbt.TagIntArray(
+              FixedArray::from_array(array.map(it => it.as_int().unwrap())),
+            )
+          @nbt.TypeByte =>
+            @nbt.TagByteArray(
+              Bytes::from_array(array.map(it => it.as_byte().unwrap())),
+            )
+          @nbt.TypeLong =>
+            @nbt.TagLongArray(
+              FixedArray::from_array(array.map(it => it.as_long().unwrap())),
+            )
           _ => TagList(eType, FixedArray::from_array(array))
         }
-      }
       Comma => continue
       _ => // consider an element
         self.readerIndex -= 1
@@ -262,7 +270,8 @@ fn infer_string_type_or_int(string : String) -> SNBTToken {
   }
 }
 
-///|      raise fail("Incompatible type ")
+///|
+///      raise fail("Incompatible type ")
 fn infer_string_type_or_string(string : String) -> SNBTToken {
   match infer_string_type(string) {
     None => SNBTToken::String(string)
@@ -288,7 +297,8 @@ fn infer_string_type(string : String) -> SNBTToken? {
   }
   match tail { // numeric types
     'b' | 'B' =>
-      if (try? @strconv.parse_int(content)).map(it=>it.reinterpret_as_uint()) is Ok(r) &&
+      if (try? @strconv.parse_int(content)).map(it => it.reinterpret_as_uint())
+        is Ok(r) &&
         r >= @byte.min_value.to_uint() &&
         r <= @byte.max_value.to_uint() {
         return Some(SNBTToken::Byte(r.to_byte()))

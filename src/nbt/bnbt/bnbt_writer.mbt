@@ -11,7 +11,7 @@ pub suberror UnknownTagType String
 pub fn write_uncompressed(
   littleEndian? : Bool = false,
   tag : @nbt.NBTTag,
-  buf : @buffer.T,
+  buf : @buffer.Buffer,
 ) -> Unit raise {
   write_with_type(tag, WriterByteBuf::{ littleEndian, buffer: buf })
 }
@@ -26,11 +26,9 @@ pub fn write_gzip(
 ) -> @io.Buffer raise {
   let result = @io.Buffer::new()
   let gzipWriter = @gzip.Writer::new(result)
-
   let uncompressed = @buffer.new()
   write_uncompressed(littleEndian~, tag, uncompressed)
   let slice = @io.Slice::new(uncompressed.to_bytes().to_array())
-
   let (_, err) = gzipWriter.write(slice)
   guard gzipWriter.close() is None
   let r = match err {
@@ -45,12 +43,11 @@ pub fn write_gzip(
 /// see also: write_uncompressed
 pub fn write_zlib(
   littleEndian? : Bool = false,
-  dict?: @io.Slice[Byte] = @io.Slice::new([]),
+  dict? : @io.Slice[Byte] = @io.Slice::new([]),
   tag : @nbt.NBTTag,
 ) -> @io.Buffer raise {
   let nbtBuf = @buffer.new()
   write_uncompressed(littleEndian~, tag, nbtBuf)
-
   let result = @io.Buffer::new()
   let zlibw = @zlib.Writer::new_dict(result, dict)
 
@@ -99,7 +96,7 @@ fn write_with_type(
         out.write_int(i)
       }
     }
-    TagCompound(name, map) => {
+    TagCompound(name, _) => {
       out.write_string(name)
       write_compound(tag, out)
     }

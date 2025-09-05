@@ -1,11 +1,11 @@
 ///|
 struct WriterByteBuf {
   littleEndian : Bool
-  buffer : @buffer.T
+  buffer : @buffer.Buffer
 }
 
 ///|
-pub fn newWriter(littleEndian : Bool, buffer : @buffer.T) -> WriterByteBuf {
+pub fn newWriter(littleEndian : Bool, buffer : @buffer.Buffer) -> WriterByteBuf {
   WriterByteBuf::{ littleEndian, buffer }
 }
 

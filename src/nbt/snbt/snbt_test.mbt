@@ -12,11 +12,23 @@ test "test parsing primitive tags" {
   inspect(@snbt.parse_tag("true"), content="TagByte(b'\\x01')")
   inspect(@snbt.parse_tag("false"), content="TagByte(b'\\x00')")
   inspect(@snbt.parse_tag("[1,2,3,4]"), content="TagIntArray([1, 2, 3, 4])")
-  inspect(@snbt.parse_tag("[1b,2b,3b,4b]"), content="TagByteArray(b\"\\x01\\x02\\x03\\x04\")")
+  inspect(
+    @snbt.parse_tag("[1b,2b,3b,4b]"),
+    content="TagByteArray(b\"\\x01\\x02\\x03\\x04\")",
+  )
   inspect(@snbt.parse_tag("[1i,2s,3b,4b]"), content="TagIntArray([1, 2, 3, 4])")
-  inspect(@snbt.parse_tag("[I;1i,2i,3i,4i]"), content="TagIntArray([1, 2, 3, 4])")
-  inspect(@snbt.parse_tag("[L;1i,2i,3i,4i]"), content="TagLongArray([1, 2, 3, 4])")
-  inspect(@snbt.parse_tag("[B;true, 1b, 2b]"), content="TagByteArray(b\"\\x01\\x01\\x02\")")
+  inspect(
+    @snbt.parse_tag("[I;1i,2i,3i,4i]"),
+    content="TagIntArray([1, 2, 3, 4])",
+  )
+  inspect(
+    @snbt.parse_tag("[L;1i,2i,3i,4i]"),
+    content="TagLongArray([1, 2, 3, 4])",
+  )
+  inspect(
+    @snbt.parse_tag("[B;true, 1b, 2b]"),
+    content="TagByteArray(b\"\\x01\\x01\\x02\")",
+  )
 }
 
 ///|
@@ -41,7 +53,7 @@ test "test reader" {
   let parsed = @bnbt.parse_uncompressed(schema[:])
   let result =
     #|{"root" :{"byte": 1B,"short": 1s,"int": 1,"long": 1L,"float": 42f,"double": 114514d,"string": "想吃板烧鸡腿堡......","bytearray": [B;229B,164B,169B,228B,189B,191B,227B,129B,168B,33B,32B,230B,130B,170B,233B,173B,148B,227B,129B,168B,33B,32B,32B,229B,164B,169B,228B,189B,191B,227B,129B,168B,33B,32B,230B,130B,170B,233B,173B,148B,227B,129B,168B,33B,32B,229B,164B,169B,228B,189B,191B,227B,129B,168B,33B,32B,230B,130B,170B,233B,173B,148B,227B,129B,140B,33B,10B],"intarray": [I;1,2,3,4,5],"longarray": [L;114L,514L,1919L,810L]}}
-  inspect(@snbt.write(parsed).join(""))
+  inspect(@snbt.write(parsed).join(""), content = result)
 }
 
 ///|

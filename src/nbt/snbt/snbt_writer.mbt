@@ -5,18 +5,20 @@
 /// 3. The root tag won't be omitted.
 /// 
 /// By joining the Iter you got the complete string of the snbt output.
-pub fn write(nbt: @nbt.NBTTag) -> Iter[String] {
-  Iter::new(c => {
-    match nbt {
-      TagCompound(name, _) => if c("{\"\{escape_snbt_dquote(name)}\" :") == IterEnd ||
-      write_without_root(nbt).run(c) == IterEnd {
+pub fn write(nbt : @nbt.NBTTag) -> Iter[String] {
+  Iter::new(c => match nbt {
+    TagCompound(name, _) =>
+      if c("{\"\{escape_snbt_dquote(name)}\" :") == IterEnd ||
+        write_without_root(nbt).run(c) == IterEnd {
         IterEnd
-      } else { c("}") }
-      other => write_without_root(other).run(c)
-    }
+      } else {
+        c("}")
+      }
+    other => write_without_root(other).run(c)
   })
 }
 
+///|
 fn write_without_root(nbt : @nbt.NBTTag) -> Iter[String] {
   Iter::new(c => {
     let r = match nbt {

@@ -31,7 +31,10 @@ test "test array" {
     content="[Ok(ListBegin(Byte)), Ok(Byte(b'\\x01')), Ok(Comma), Ok(Byte(b'\\x02')), Ok(Comma), Ok(Byte(b'\\x03')), Ok(ListEnd)]",
   )
   let result = @snbt.parse_token("[3.2,64.5,129.5]")
-  inspect(result, content = "[Ok(ListBegin(Unknown)), Ok(Double(3.2)), Ok(Comma), Ok(Double(64.5)), Ok(Comma), Ok(Double(129.5)), Ok(ListEnd)]")
+  inspect(
+    result,
+    content="[Ok(ListBegin(Unknown)), Ok(Double(3.2)), Ok(Comma), Ok(Double(64.5)), Ok(Comma), Ok(Double(129.5)), Ok(ListEnd)]",
+  )
 }
 
 ///|
@@ -42,30 +45,34 @@ test "test compound" {
   let expect =
     #|[Ok(CompoundBegin), Ok(String("foo")), Ok(SemiColon), Ok(Int(1)), Ok(Comma), Ok(String("bar")), Ok(SemiColon), Ok(String("abc")), Ok(Comma), Ok(String("baz")), Ok(SemiColon), Ok(CompoundBegin), Ok(CompoundEnd), Ok(CompoundEnd)]
   inspect(result, content=expect)
-
   let input =
     #|{X:3,Y:64,Z:129}
   let result = @snbt.parse_token(input)
-  let expect = 
-  #|[Ok(CompoundBegin), Ok(String("X")), Ok(SemiColon), Ok(Int(3)), Ok(Comma), Ok(String("Y")), Ok(SemiColon), Ok(Int(64)), Ok(Comma), Ok(String("Z")), Ok(SemiColon), Ok(Int(129)), Ok(CompoundEnd)]
-  inspect(result, content = expect)
+  let expect =
+    #|[Ok(CompoundBegin), Ok(String("X")), Ok(SemiColon), Ok(Int(3)), Ok(Comma), Ok(String("Y")), Ok(SemiColon), Ok(Int(64)), Ok(Comma), Ok(String("Z")), Ok(SemiColon), Ok(Int(129)), Ok(CompoundEnd)]
+  inspect(result, content=expect)
 }
 
+///|
 test "test string" {
-  let input = #|"Hello \"World!\""
-  let result = #|[Ok(String("Hello \"World!\""))]
-
-  inspect(@snbt.parse_token(input), content = result)
-
-  let input = #|'Hello "World!"'
-  let result = #|[Ok(String("Hello \"World!\""))]
-  inspect(@snbt.parse_token(input), content = result)
-
-  let input = #|'Hello \'World!\''
-  let result = #|[Ok(String("Hello 'World!'"))]
-  inspect(@snbt.parse_token(input), content = result)
-
-  let input = #|"Hello 'World!'"
-  let result = #|[Ok(String("Hello 'World!'"))]
-  inspect(@snbt.parse_token(input), content = result)
+  let input =
+    #|"Hello \"World!\""
+  let result =
+    #|[Ok(String("Hello \"World!\""))]
+  inspect(@snbt.parse_token(input), content=result)
+  let input =
+    #|'Hello "World!"'
+  let result =
+    #|[Ok(String("Hello \"World!\""))]
+  inspect(@snbt.parse_token(input), content=result)
+  let input =
+    #|'Hello \'World!\''
+  let result =
+    #|[Ok(String("Hello 'World!'"))]
+  inspect(@snbt.parse_token(input), content=result)
+  let input =
+    #|"Hello 'World!'"
+  let result =
+    #|[Ok(String("Hello 'World!'"))]
+  inspect(@snbt.parse_token(input), content=result)
 }
