@@ -59,7 +59,7 @@ pub fn write_zlib(
 }
 
 ///|
-pub fn write_compound(tag : @nbt.NBTTag, out : WriterByteBuf) -> Unit raise {
+fn write_compound(tag : @nbt.NBTTag, out : WriterByteBuf) -> Unit raise {
   match tag {
     TagCompound(_, map) => {
       for _, entry in map.iter() {

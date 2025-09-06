@@ -17,6 +17,7 @@ pub enum SNBTToken {
 } derive(Show, Eq)
 
 ///|
+/// For ListBegin with Unknown type, you'll need to guess its type by capturing the first element.
 pub enum SNBTListType {
   Byte
   Int
@@ -24,7 +25,8 @@ pub enum SNBTListType {
   Unknown
 } derive(Show, Eq)
 
-///|
+///| 
+/// This method maps a SNBTListType to a corresponding numeric NBTType, otherwise None is returned.
 pub fn to_type_id(self : SNBTListType) -> @nbt.NBTType? {
   Some(
     match self {
@@ -37,9 +39,13 @@ pub fn to_type_id(self : SNBTListType) -> @nbt.NBTType? {
 }
 
 ///|
+/// Thrown if a token is considered invalid.
 pub suberror InvalidToken String
 
 ///|
+/// This function returns an iterator that yields out SNBTToken or error from the given string until end.
+/// Errors are often caused by unquoted strings. The iterator won't stop even if a error is occurred, allowing
+/// you to continue parsing.
 pub fn parse_token(input : String) -> Iter[Result[SNBTToken, Error]] {
   return newCharBuffer(input[:])._parse_token()
 }

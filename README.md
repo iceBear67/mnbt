@@ -1,10 +1,12 @@
 # iceBear67/mnbt
 
-A simple parser for binary variant of [Named-Binary-Tag (NBT) Data Format](https://minecraft.wiki/w/NBT_format), which is commonly used in Minecraft.
+A simple parser for [Named-Binary-Tag (NBT) Data Format](https://minecraft.wiki/w/NBT_format), which is commonly used in Minecraft.
+
+This library supports both SNBT and NBT.
 
 # Usage
 
-NBT consist of some kind of tags, which are represented in MoonBit enum `@nbt.NBTTag`. You can access the tree via pattern matching or accessor methods.
+NBT consists of some kind of tags, which are represented in MoonBit enum `@nbt.NBTTag`. You can access the tree via pattern matching or accessor methods.
 
 Here's an example:
 
@@ -26,9 +28,9 @@ fn access_tag(tag: @nbt.NBTTag) -> String? {
 }
 ```
 
-For GZipped NBT Tags, you may experience stack overflow on WASM Targets. This is an issue from upstream [gmlewis/moonbit-gzip](https://github.com/gmlewis/moonbit-gzip/releases/tag/v0.25.0), you can mitigate the problem by decompresising the file beforehand.
+For GZipped NBT Tags, you may experience stack overflow on WASM Targets. This is an issue from upstream [gmlewis/moonbit-gzip](https://github.com/gmlewis/moonbit-gzip/releases/tag/v0.25.0), you can mitigate the problem by decompressing the given input beforehand.
 
-Region formats like "Linear" can also be processed by decompressing then using `parse_uncompressed` to get a NBTTag.
+Region formats like "Linear" can also be processed by pre decompression then use `parse_uncompressed` to get a NBTTag.
 
 Here's an example taken from our tests:
 ```MoonBit
@@ -84,8 +86,8 @@ SNBT Parser also supports stream parsing.
 @snbt.parse_token("hello").all(it => it is @snbt.SNBTToken)
 ```
 
-Unfortunately, parsing SNBT into NBTTags in stream aren't supported, which means you will need to
-collect all these tokens before parsing tags. This is due to the complex nature of `Iter` s. 
+Unfortunately, parsing SNBT into NBTTags in stream mode isn't supported, which means you will need to
+collect all these tokens before parsing tags. 
 
 Contributions are always welcome!
 

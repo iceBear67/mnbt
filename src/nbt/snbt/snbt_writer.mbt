@@ -145,6 +145,6 @@ impl ToNBTString for Double with string(
 }
 
 ///|
-pub fn escape_snbt_dquote(str : String) -> String {
-  str.replace_all(old="\n", new="\\n").replace_all(old="\\", new="\\\\")
+fn escape_snbt_dquote(str : String) -> String {
+  str.replace_all(old="\\", new="\\\\").replace_all(old="\n", new="\\n")
 }

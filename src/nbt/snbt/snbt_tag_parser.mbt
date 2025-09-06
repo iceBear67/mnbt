@@ -8,7 +8,7 @@ priv struct SNBTTokenReader {
 ///|
 fn ensure_elements(self : SNBTTokenReader, size? : Int = 1) -> Unit raise {
   if self.readerIndex + (size - 1) >= self.array.length() {
-    raise fail("Not enough elements to take \{size}")
+    raise fail("Not enough elements to take for \{size}")
   }
 }
 
@@ -26,7 +26,7 @@ fn next_token(self : SNBTTokenReader) -> SNBTToken raise {
 }
 
 ///|
-/// This method parses a SNBT into @nbt.NBTTag. By default, a root compound tag whose name is a empty string will
+/// This method parses a SNBT into @nbt.NBTTag. By default, a root compound tag whose name is an empty string will
 /// also be emitted. This is commonly seen in data generated from notchian software.
 /// However, you may need to strip this root tag out when handling NBT generated from third-party softwares
 /// like WorldEdit Schematic, whose root tag is named "Schematic" and not empty string.
